@@ -182,8 +182,7 @@ npm test
 
 ## Contributors
 
-- [Your Name] - Project Lead
-- [Team Member Names]
+- [Alikhon] - Project Lead
 
 ## License
 
