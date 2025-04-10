@@ -1,0 +1,416 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Colors */
+  --primary-color: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary-color: #64748b; 
+  --secondary-dark: #475569;
+  --accent-color: #8b5cf6;
+  --accent-dark: #7c3aed;
+  --success-color: #10b981;
+  --success-dark: #059669;
+  --danger-color: #ef4444;
+  --danger-dark: #dc2626;
+  --warning-color: #f59e0b;
+  --warning-dark: #d97706;
+  --info-color: #0ea5e9;
+  --info-dark: #0284c7;
+  
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Border Radius */
+  --border-radius: 0.375rem;
+  
+  /* Transitions */
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Global Styles ===== */
+body {
+  @apply text-slate-800 dark:text-slate-100;
+  font-family: var(--font-sans);
+  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
+}
+
+body.dark {
+  background-color: #0f172a;
+}
+
+/* Links */
+a {
+  @apply text-primary underline;
+  transition: all var(--transition-base);
+}
+
+a:hover {
+  @apply text-primary-dark;
+}
+
+/* ===== Layout Components ===== */
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.main-layout-content {
+  display: flex;
+  flex: 1;
+}
+
+.main-content {
+  flex: 1;
+  padding: var(--spacing-4);
+}
+
+/* Navigation */
+.navbar {
+  @apply bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10;
+  padding: var(--spacing-2) var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  @apply flex items-center space-x-2 text-slate-800 dark:text-white no-underline;
+  font-weight: 700;
+  font-size: 1.5rem;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-nav {
+  @apply flex items-center space-x-4;
+}
+
+/* Sidebar */
+.sidebar {
+  @apply bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700;
+  width: 250px;
+  height: 100%;
+  overflow-y: auto;
+  transition: transform var(--transition-base);
+}
+
+.sidebar-collapsed {
+  transform: translateX(-100%);
+}
+
+.sidebar-nav {
+  padding: var(--spacing-4) 0;
+}
+
+.sidebar-item {
+  @apply flex items-center px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 no-underline;
+  transition: all var(--transition-base);
+}
+
+.sidebar-item.active {
+  @apply bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium;
+}
+
+.sidebar-item-icon {
+  @apply mr-3;
+}
+
+/* Footer */
+.footer {
+  @apply bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700;
+  padding: var(--spacing-4);
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+/* ===== UI Components ===== */
+/* Buttons */
+.btn {
+  @apply inline-flex items-center justify-center rounded-md font-medium;
+  padding: 0.5rem 1rem;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.btn-sm {
+  @apply text-sm px-3 py-1.5;
+}
+
+.btn-md {
+  @apply text-base px-4 py-2;
+}
+
+.btn-lg {
+  @apply text-lg px-5 py-2.5;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-primary-dark;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white hover:bg-secondary-dark;
+}
+
+.btn-success {
+  @apply bg-success text-white hover:bg-success-dark;
+}
+
+.btn-danger {
+  @apply bg-danger text-white hover:bg-danger-dark;
+}
+
+.btn-warning {
+  @apply bg-warning text-white hover:bg-warning-dark;
+}
+
+.btn-info {
+  @apply bg-info text-white hover:bg-info-dark;
+}
+
+.btn-outline {
+  @apply border bg-transparent;
+}
+
+.btn-outline-primary {
+  @apply border-primary text-primary hover:bg-primary hover:text-white;
+}
+
+/* Cards */
+.card {
+  @apply bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  @apply p-4 border-b border-slate-200 dark:border-slate-700;
+}
+
+.card-body {
+  @apply p-4;
+}
+
+.card-footer {
+  @apply p-4 border-t border-slate-200 dark:border-slate-700;
+}
+
+/* Inputs */
+.input-container {
+  @apply mb-4;
+}
+
+.input-full {
+  @apply w-full;
+}
+
+.input-label {
+  @apply block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300;
+}
+
+.input-required {
+  @apply ml-1 text-danger;
+}
+
+.input-wrapper {
+  @apply relative;
+}
+
+.input {
+  @apply w-full rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 
+  px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500;
+  transition: all var(--transition-base);
+}
+
+.input:focus {
+  @apply outline-none border-primary dark:border-primary ring-1 ring-primary;
+}
+
+.input-disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
+
+.input-has-error {
+  @apply border-danger dark:border-danger focus:border-danger dark:focus:border-danger focus:ring-danger;
+}
+
+.input-icon {
+  @apply absolute inset-y-0 flex items-center text-slate-400;
+}
+
+.input-icon-left {
+  @apply left-0 pl-3;
+}
+
+.input-with-left-icon {
+  @apply pl-10;
+}
+
+.input-icon-right {
+  @apply right-0 pr-3;
+}
+
+.input-with-right-icon {
+  @apply pr-10;
+}
+
+.input-helper-text {
+  @apply mt-1 text-xs text-slate-500 dark:text-slate-400;
+}
+
+.input-error-text {
+  @apply text-danger dark:text-danger;
+}
+
+/* Badges */
+.badge {
+  @apply inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-medium rounded-full;
+}
+
+.badge-primary {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300;
+}
+
+.badge-secondary {
+  @apply bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+}
+
+.badge-danger {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
+}
+
+.badge-warning {
+  @apply bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300;
+}
+
+.badge-info {
+  @apply bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-300;
+}
+
+/* Loader */
+.loader {
+  border-radius: 50%;
+  border-top: 2px solid transparent;
+  border-right: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-left: 2px solid currentColor;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loader-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+.loader-md {
+  width: 2rem;
+  height: 2rem;
+}
+
+.loader-lg {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Notification Center */
+.notification-center {
+  @apply fixed top-4 right-4 z-50 w-80 max-w-full space-y-2;
+}
+
+.notification {
+  @apply flex items-center justify-between p-4 rounded-lg shadow-md text-white;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notification-success {
+  @apply bg-success;
+}
+
+.notification-error {
+  @apply bg-danger;
+}
+
+.notification-warning {
+  @apply bg-warning;
+}
+
+.notification-info {
+  @apply bg-info;
+}
+
+.notification-content {
+  @apply flex items-start;
+}
+
+.notification-icon {
+  @apply mr-3 flex-shrink-0;
+}
+
+.notification-message {
+  @apply text-sm;
+}
+
+.notification-close {
+  @apply ml-4 text-white opacity-70 hover:opacity-100;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}

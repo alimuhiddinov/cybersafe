@@ -1,0 +1,331 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// User model
+model User {
+  id                         Int                       @id @default(autoincrement())
+  username                   String                    @unique
+  email                      String                    @unique
+  password                   String
+  firstName                  String?
+  lastName                   String?
+  bio                        String?
+  role                       UserRole                  @default(USER)
+  profileImage               String?
+  isPremium                  Boolean                   @default(false)
+  premiumExpiryDate          DateTime?
+  lastLogin                  DateTime?
+  isVerified                 Boolean                   @default(false)
+  verificationToken          String?        
+  verificationExpiry         DateTime?
+  resetToken                 String?
+  resetTokenExpiry           DateTime?
+  refreshToken               String?
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  userProgress               UserProgress[]
+  userBadges                 UserBadge[]
+  userFeedback               UserFeedback[]
+  userAssessmentAttempts     UserAssessmentAttempt[]
+  userAchievements           UserAchievement[]
+  learningStreak             LearningStreak?
+}
+
+enum UserRole {
+  USER
+  INSTRUCTOR
+  ADMIN
+}
+
+// Badge model
+model Badge {
+  id              Int          @id @default(autoincrement())
+  name            String       @unique
+  description     String
+  imageUrl        String
+  criteria        String
+  pointsRequired  Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  userBadges      UserBadge[]
+}
+
+// UserBadge model (Junction table for users and badges)
+model UserBadge {
+  id              Int          @id @default(autoincrement())
+  userId          Int
+  badgeId         Int
+  awardedAt       DateTime     @default(now())
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge           Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+// Learning Module model
+model LearningModule {
+  id                  Int                   @id @default(autoincrement())
+  title               String
+  description         String
+  content             String
+  difficultyLevel     DifficultyLevel       @default(BEGINNER)
+  estimatedTimeMinutes Int
+  points              Int                   @default(0)
+  prerequisites       String?
+  imageUrl            String?
+  isPublished         Boolean               @default(false)
+  orderIndex          Int                   @default(0)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  createdById         Int?
+  userProgress        UserProgress[]
+  assessments         Assessment[]
+  userFeedback        UserFeedback[]
+  
+  @@index([difficultyLevel])
+  @@index([isPublished])
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+// UserProgress model for tracking module completion
+model UserProgress {
+  id                  Int                   @id @default(autoincrement())
+  userId              Int
+  moduleId            Int
+  completionStatus    CompletionStatus      @default(NOT_STARTED)
+  lastAccessedAt      DateTime              @default(now())
+  completedAt         DateTime?
+  pointsEarned        Int                   @default(0)
+  progressPercentage  Float                 @default(0)
+  timeSpentSeconds    Int                   @default(0)
+  activityLog         ActivityLog[]         // Track detailed user activity within modules
+  notesSaved          String?               // Personal notes saved by user
+  bookmarkedSections  String?               // JSON array of bookmarked sections
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningModule      LearningModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([completionStatus])
+  @@index([lastAccessedAt])
+}
+
+enum CompletionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// Activity Log model for detailed progress tracking
+model ActivityLog {
+  id              Int             @id @default(autoincrement())
+  userProgressId  Int
+  activityType    ActivityType
+  sectionId       String?         // Identifies specific section in module
+  timestamp       DateTime        @default(now())
+  metadata        String?         // JSON string with additional activity details
+  userProgress    UserProgress    @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
+
+  @@index([userProgressId])
+  @@index([activityType])
+  @@index([timestamp])
+}
+
+enum ActivityType {
+  PAGE_VIEW
+  VIDEO_WATCHED
+  EXERCISE_COMPLETED
+  QUIZ_ATTEMPTED
+  RESOURCE_DOWNLOADED
+  NOTE_ADDED
+  MODULE_STARTED
+  MODULE_COMPLETED
+  SECTION_COMPLETED
+}
+
+// Assessment model (quizzes, tests, etc.)
+model Assessment {
+  id                      Int                       @id @default(autoincrement())
+  title                   String
+  description             String
+  passThreshold           Float                     @default(70.0) // Percentage needed to pass
+  timeLimit               Int?                      // Time limit in minutes, null means no limit
+  maxAttempts             Int?                      // Maximum number of attempts, null means unlimited
+  moduleId                Int
+  isActive                Boolean                   @default(true)
+  randomizeQuestions      Boolean                   @default(false)
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  learningModule          LearningModule            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions               Question[]
+  userAssessmentAttempts  UserAssessmentAttempt[]
+
+  @@index([moduleId])
+  @@index([isActive])
+}
+
+// Question model for assessments
+model Question {
+  id                      Int                       @id @default(autoincrement())
+  questionText            String
+  questionType            QuestionType              @default(MULTIPLE_CHOICE)
+  explanation             String?
+  points                  Int                       @default(1)
+  difficultyLevel         DifficultyLevel           @default(BEGINNER)
+  orderIndex              Int                       @default(0)
+  assessmentId            Int
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  assessment              Assessment                @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  answers                 Answer[]
+  userAnswers             UserAnswer[]
+
+  @@index([assessmentId])
+  @@index([questionType])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  SINGLE_CHOICE
+  TRUE_FALSE
+  FILL_BLANK
+  CODE_CHALLENGE
+}
+
+// Answer model for question options
+model Answer {
+  id                      Int                       @id @default(autoincrement())
+  answerText              String
+  isCorrect               Boolean                   @default(false)
+  explanation             String?
+  questionId              Int
+  orderIndex              Int                       @default(0)
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  question                Question                  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userAnswers             UserAnswer[]
+
+  @@index([questionId])
+}
+
+// UserFeedback model for module ratings and comments
+model UserFeedback {
+  id                      Int                       @id @default(autoincrement())
+  userId                  Int
+  moduleId                Int
+  rating                  Int                       // Rating from 1-5
+  comment                 String?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningModule          LearningModule            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([rating])
+}
+
+// UserAssessmentAttempt model for tracking assessment attempts
+model UserAssessmentAttempt {
+  id                      Int                       @id @default(autoincrement())
+  userId                  Int
+  assessmentId            Int
+  startedAt               DateTime                  @default(now())
+  completedAt             DateTime?
+  score                   Float?                    // Percentage score
+  isPassed                Boolean?
+  attemptNumber           Int
+  timeSpentSeconds        Int?
+  feedbackGiven           String?                   // Feedback on their performance
+  deviceInfo              String?                   // Device used for the attempt
+  ipAddress               String?                   // IP address (store safely)
+  attemptSummary          String?                   // JSON summary of performance 
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessment              Assessment                @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  userAnswers             UserAnswer[]
+
+  @@index([userId, assessmentId])
+  @@index([isPassed])
+  @@index([completedAt])
+}
+
+// UserAnswer model for tracking user responses to questions
+model UserAnswer {
+  id                      Int                       @id @default(autoincrement())
+  attemptId               Int
+  questionId              Int
+  answerId                Int?                      // Null for free text answers
+  textAnswer              String?
+  isCorrect               Boolean                   @default(false)
+  pointsEarned            Float                     @default(0)
+  userAssessmentAttempt   UserAssessmentAttempt     @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question                Question                  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer                  Answer?                   @relation(fields: [answerId], references: [id], onDelete: SetNull)
+
+  @@index([attemptId])
+  @@index([questionId])
+  @@index([isCorrect])
+}
+
+// Achievement model
+model Achievement {
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique
+  description       String
+  imageUrl          String?
+  criteria          String
+  pointsValue       Int                 @default(10)
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  userAchievements  UserAchievement[]
+}
+
+// UserAchievement model - links users to their earned achievements
+model UserAchievement {
+  id              Int         @id @default(autoincrement())
+  userId          Int
+  achievementId   Int
+  awardedAt       DateTime    @default(now())
+  isNotified      Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement     Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+}
+
+// Learning Streak model to track consecutive days of activity
+model LearningStreak {
+  id                      Int                       @id @default(autoincrement())
+  userId                  Int
+  currentStreak           Int                       @default(0)
+  longestStreak           Int                       @default(0)
+  lastActivityDate        DateTime                  @default(now())
+  startDate               DateTime                  @default(now())
+  user                    User                      @relation(fields: [userId], references: [id])
+
+  @@unique([userId])
+  @@index([currentStreak])
+}

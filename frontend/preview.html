@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSafe Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #010B2C, #0A1437);
+            min-height: 100vh;
+            color: white;
+        }
+        .hero-container {
+            position: relative;
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+        }
+        .text-container {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .image-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+        .hero-image {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+            object-position: right center;
+        }
+        @media (max-width: 768px) {
+            .text-container {
+                width: 100%;
+                padding: 0 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-container">
+        <!-- Left side with centered text -->
+        <div class="text-container">
+            <div class="px-8 md:px-12 lg:px-16">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                    Level Up Your Digital Defense
+                </h1>
+                
+                <p class="text-lg text-gray-300 mb-10">
+                    Embark on a cybersecurity adventure with CyberSafe's expert team. 
+                    Learn, practice, and master essential skills to protect yourself and respond to digital threats.
+                </p>
+                
+                <a 
+                    href="#" 
+                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors"
+                >
+                    Get Started
+                </a>
+            </div>
+        </div>
+        
+        <!-- Full-screen hero area -->
+        <div class="image-container">
+            <!-- The hero image positioned to show on the right side -->
+            <img 
+                src="/images/new-landing.png" 
+                alt="CyberSafe Team" 
+                class="hero-image"
+                onerror="this.src='https://via.placeholder.com/800x600?text=CyberSafe+Team+Image'"
+            >
+        </div>
+    </div>
+</body>
+</html>

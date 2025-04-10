@@ -1,0 +1,108 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Lint Backend
+        run: npm run lint:backend
+        
+      - name: Lint Frontend
+        run: npm run lint:frontend
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Setup Test Database
+        run: |
+          cd backend
+          echo "DATABASE_URL=mysql://root:root@localhost:3306/cybersafe_test" > .env.test
+          
+      - name: Run Backend Tests
+        run: npm run test:backend
+        
+      - name: Run Frontend Tests
+        run: npm run test:frontend
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Build Backend
+        run: npm run build:backend
+        
+      - name: Build Frontend
+        run: npm run build:frontend
+        
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            frontend/build
+            backend/dist
+
+  # Deployment job - commented out for now, uncomment and configure when ready for deployment
+  # deploy:
+  #   name: Deploy to Staging
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   if: github.ref == 'refs/heads/development'
+  #   
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       
+  #     - name: Download Build Artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-artifacts
+  #         
+  #     - name: Deploy to Staging
+  #       # Add deployment steps here
+  #       run: echo "Deploying to staging environment"
